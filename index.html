@@ -23,7 +23,7 @@ const MAPO=['################','#..............#','#..##......##..#','#..#......
 const LV=[{map:MAP1,s:[1.5,13.5],e:[[13.5,1.5],[8.5,5.5],[13.5,5.5],[6.5,8.5],[13.5,10.5],[3.5,3.5],[13.5,13.5]]},{map:MAP2,s:[1.5,14.5],e:[[3.5,1.5],[12.5,1.5],[7.5,3.5],[14.5,5.5],[5.5,7.5],[10.5,8.5],[7.5,10.5],[7.5,13.5]]},{map:MAP3,s:[1.5,14.5],e:[[13.5,1.5],[4.5,5.5],[1.5,8.5],[14.5,8.5],[11.5,11.5],[7.5,13.5],[10.5,3.5]],b:[7.5,1.5]},{map:MAP3,s:[7.5,8.5],e:[]},{map:MAPE,s:[1.5,14.5],e:[[9.5,3.5],[3.5,3.5],[10.5,5.5],[5.5,7.5],[12.5,8.5],[7.5,10.5],[11.5,12.5],[7.5,13.5],[1.5,5.5]]},{map:MAPO,s:[14.5,2.5],e:[[9.5,1.5],[5.5,4.5],[10.5,4.5],[2.5,6.5],[13.5,6.5],[7.5,8.5],[4.5,9.5],[11.5,9.5],[2.5,11.5],[13.5,11.5],[7.5,13.5],[1.5,14.5],[14.5,14.5]]}];
 let MAP=MAP1,level=0;
 const wall=(x,y)=>{const r=MAP[Math.floor(y)];return !r||(r[Math.floor(x)]!=='.'&&r[Math.floor(x)]!=='S')};
-let mySkin=(()=>{try{return (+localStorage.getItem('bbskin')||0)%4}catch(_){return 0}})(),FLG=[],CAP=[0,0],CA=[],CM={},cid=0,cashT=2,mpTime=9999,mpTimed=false,mpDur=300,earned=0,cpSent={},tx=null,mpCode='',MP=0,mpm='',nr=null,isHost=true,RP=[],myK=0,myD=0,myTeam=0,myName='',respT=0,mpT=0,zid=0,mpEnd='',mpMsg='',pg='main',hs=[],KC=[],kc=0,et=0,rf=0,oz=false,AM=[],bp=false,pts=0,wave=0,zq=0,zt=0,wt=0,wm=0,mode='bunker',rl=0,sinceHit=0,showMap=true,P,E,state='menu',keys={},kills=0,cd=0,flash=0,hurt=0,zb=new Array(W);
+let myNick=(()=>{try{return localStorage.getItem('bbname')||'PLAYER'}catch(_){return 'PLAYER'}})(),lobMode=1,lobDur=300,lobR=[],matchId=0,lastGid=0,mpDurCur=300,txBack='',mySkin=(()=>{try{return (+localStorage.getItem('bbskin')||0)%4}catch(_){return 0}})(),FLG=[],CAP=[0,0],CA=[],CM={},cid=0,cashT=2,mpTime=9999,mpTimed=false,mpDur=300,earned=0,cpSent={},tx=null,mpCode='',MP=0,mpm='',nr=null,isHost=true,RP=[],myK=0,myD=0,myTeam=0,myName='',respT=0,mpT=0,zid=0,mpEnd='',mpMsg='',pg='main',hs=[],KC=[],kc=0,et=0,rf=0,oz=false,AM=[],bp=false,pts=0,wave=0,zq=0,zt=0,wt=0,wm=0,mode='bunker',rl=0,sinceHit=0,showMap=true,P,E,state='menu',keys={},kills=0,cd=0,flash=0,hurt=0,zb=new Array(W);
 function reset(){mode='bunker';MP=0;oz=false;level=0;load()}
 function load(){const L=LV[level],keep=P?P.hp:100,kr=P&&P.res!=null?P.res:36;MAP=L.map.slice();P={x:L.s[0],y:L.s[1],a:0,hp:level?Math.max(keep,60):100,mag:12,res:level?Math.max(kr,24):36,rt:0,jz:0,jv:0,sh:0,cap:12,w:0,om:6,or:0,ocap:6,own:false};sinceHit=0;
 E=L.e.map(([x,y])=>({x,y,hp:3,cd:1+Math.random(),alert:false,f:0}));
@@ -38,13 +38,13 @@ if(fw>0&&fw<range&&sd<(e.boss?0.45:0.3)&&fw<bd&&los(e.x,e.y)){best=e;bd=fw}}
 return best};
 const hits=P.w?[-.16,-.08,0,.08,.16].map(a=>hitE(a,7)):[hitE(0,99)];
 for(const best of hits){if(best&&best.hp>0){if(best.rp){nr.emit('hit',{to:best.peer,dmg:P.w?10:22,by:me()});best.f=.1;continue}if(MP&&(mpm==='coop'||mpm==='race')&&best.z){nr.emit('zh',{id:best.id,by:me()});best.f=.1;continue}best.hp--;if(mode==='zombies')pts+=10;best.f=0.1;best.alert=true;if(best.hp<=0){kills++;if(mode==='zombies')pts+=best.boss?500:60;if(mode!=='zombies'||best.boss)AM.push({x:best.x,y:best.y,n:best.boss?(mode==='zombies'?30:18):6});if(mode==='bunker'&&kills===E.length)state=level<2?'next':'win'}}}}
-addEventListener('keydown',e=>{if(state==='text'){textKey(e);return}keys[e.code]=1;if(e.code==='Space'){e.preventDefault();if(state==='win')winNext();else if(state==='mpend')leaveMP();else if(state==='menu'||state==='pause'){}else if(state==='next'){nextLevel()}else if(state==='dead')retry()}if(e.code==='KeyR'){if(state==='play')reload();else if(state!=='menu'&&state!=='pause'){if(mode==='zombies')startZombies();else if(mode==='escape')startEscape();else reset()}}if(e.code==='KeyE')buy();if(e.code==='KeyQ')sw();if(e.code==='KeyG')buyGun();if(e.code==='KeyM')showMap=!showMap;if(e.code==='Escape'||e.code==='KeyP'){if(state==='play')pause();else if(state==='pause')act(0)}if(state==='menu'||state==='pause'){const n=btns().length;if(e.code==='ArrowDown')sel=(sel+1)%n;if(e.code==='ArrowUp')sel=(sel+n-1)%n;if(e.code==='Enter'||e.code==='Space')act(sel)}});
+addEventListener('keydown',e=>{if(state==='text'){textKey(e);return}if(state==='lobby'){lobKey(e);return}keys[e.code]=1;if(e.code==='Space'){e.preventDefault();if(state==='win')winNext();else if(state==='mpend')backToLobby();else if(state==='menu'||state==='pause'){}else if(state==='next'){nextLevel()}else if(state==='dead')retry()}if(e.code==='KeyR'){if(state==='play')reload();else if(state!=='menu'&&state!=='pause'){if(mode==='zombies')startZombies();else if(mode==='escape')startEscape();else reset()}}if(e.code==='KeyE')buy();if(e.code==='KeyQ')sw();if(e.code==='KeyG')buyGun();if(e.code==='KeyM')showMap=!showMap;if(e.code==='Escape'||e.code==='KeyP'){if(state==='play')pause();else if(state==='pause')act(0)}if(state==='menu'||state==='pause'){const n=btns().length;if(e.code==='ArrowDown')sel=(sel+1)%n;if(e.code==='ArrowUp')sel=(sel+n-1)%n;if(e.code==='Enter'||e.code==='Space')act(sel)}});
 addEventListener('keyup',e=>keys[e.code]=0);
-cv.addEventListener('mousedown',ev=>{if(menuClick(ev))return;if(state==='mpend'){leaveMP();return}if(state==='next'){nextLevel();return}if(state==='dead'){retry();return}if(state==='win'){winNext();try{cv.requestPointerLock()}catch(_){}return}
+cv.addEventListener('mousedown',ev=>{if(state==='lobby'){lobClick(ev);return}if(menuClick(ev))return;if(state==='mpend'){backToLobby();return}if(state==='next'){nextLevel();return}if(state==='dead'){retry();return}if(state==='win'){winNext();try{cv.requestPointerLock()}catch(_){}return}
 try{if(document.pointerLockElement!==cv)cv.requestPointerLock()}catch(_){}shoot()});
 addEventListener('mousemove',e=>{if(document.pointerLockElement===cv&&P)P.a+=e.movementX*0.0025});
 function update(dt){
-if(state!=='play'&&!(MP&&state==='pause'))return;cd-=dt;flash-=dt;hurt-=dt;sinceHit+=dt;if(mode==='zombies'&&(!MP||isHost))zWave(dt);if(mode==='escape')escUpdate(dt);if(MP)mpTick(dt);if(sinceHit>4&&P.hp<100)P.hp=Math.min(100,P.hp+6*dt);
+if(state==='lobby'){lobbyTick(dt);return}if(state!=='play'&&!(MP&&state==='pause'))return;cd-=dt;flash-=dt;hurt-=dt;sinceHit+=dt;if(mode==='zombies'&&(!MP||isHost))zWave(dt);if(mode==='escape')escUpdate(dt);if(MP)mpTick(dt);if(sinceHit>4&&P.hp<100)P.hp=Math.min(100,P.hp+6*dt);
 if(keys.ArrowLeft)P.a-=2.2*dt;if(keys.ArrowRight)P.a+=2.2*dt;
 if(keys.KeyF)shoot();if(keys.Space&&P.jz===0&&P.jv===0)P.jv=2;if(P.jz>0||P.jv>0){P.jv-=8*dt;P.jz+=P.jv*dt;if(P.jz<=0){P.jz=0;P.jv=0}}if(P.rt>0){P.rt-=dt;if(P.rt<=0){const n=Math.min(P.cap-P.mag,P.res);P.mag+=n;P.res-=n}}for(let i=AM.length-1;i>=0;i--){const a=AM[i];if(Math.hypot(a.x-P.x,a.y-P.y)<0.6){P.res=Math.min(99,P.res+a.n);if(P.own)P.or=Math.min(99,P.or+Math.ceil(a.n/2));AM.splice(i,1)}}
 const dx=Math.cos(P.a),dy=Math.sin(P.a),s=((keys.ShiftLeft||keys.ShiftRight)?4.3:2.6)*dt;let mx=0,my=0;
@@ -96,29 +96,19 @@ g.fillStyle='#000a';g.fillRect(0,H-18,W,18);g.fillStyle='#c33';g.fillRect(6,H-14
 g.fillStyle='#e8e6df';g.font='12px monospace';g.textAlign='left';g.fillText('HP '+Math.ceil(P.hp)+(sinceHit>4&&P.hp<100?' +':''),112,H-5);g.textAlign='right';g.fillText((mode==='mp'?hudMP():mode==='escape'?(oz?'Enemies left '+E.filter(e=>e.hp>0).length:'Cards '+kc+'/2 · Time '+Math.ceil(et)+'s'):mode==='zombies'&&MP&&mpm==='race'?hudMP()+' · Wave '+wave:mode==='zombies'?'Wave '+wave+' · Pts '+pts+' · Left '+(E.filter(z=>z.hp>0).length+zq):'Lv '+(level+1)+'/3 · Down: '+kills+'/'+E.length),W-6,H-5)}
 function banner(t,s){g.fillStyle='#000c';g.fillRect(0,0,W,H);g.fillStyle='#e8e6df';g.textAlign='center';g.font='bold 30px monospace';g.fillText(t,W/2,H/2-10);g.font='13px monospace';g.fillText(s,W/2,H/2+16)}
 let sel=0,showHow=false,btnR=[];
-const btns=()=>state==='menu'?(showHow?['BACK']:(pg==='camp'?['MISSION 1: ASSAULT','MISSION 2: ESCAPE','BACK']:pg==='mp'?['CREATE GAME','JOIN WITH CODE','SKIN: '+SKINS[mySkin].n+' SOLDIER','BACK']:pg==='mpm'?['CO-OP ZOMBIES','TEAM DEATHMATCH','FREE FOR ALL','CAPTURE THE FLAG','ZOMBIE RACE','CASH MAYHEM','BACK']:pg==='mpt'?['3 MINUTES','5 MINUTES','10 MINUTES','BACK']:['CAMPAIGN','MULTIPLAYER','SOLO ZOMBIES','HOW TO PLAY'])):['RESUME','RESTART LEVEL','MAIN MENU'];
+const btns=()=>state==='menu'?(showHow?['BACK']:(pg==='camp'?['MISSION 1: ASSAULT','MISSION 2: ESCAPE','BACK']:pg==='mp'?['CREATE LOBBY','JOIN WITH CODE','BACK']:['CAMPAIGN','MULTIPLAYER','SOLO ZOMBIES','HOW TO PLAY'])):['RESUME','RESTART LEVEL','MAIN MENU'];
 function pause(){if(state==='play'){state='pause';sel=0;keys={}}}
 function lock(){try{cv.requestPointerLock()}catch(_){}}
 function act(i){const b=btns()[i];
 if(b==='CAMPAIGN'){pg='camp';sel=0}
 else if(b==='MISSION 1: ASSAULT'){reset();lock()}
 else if(b==='MULTIPLAYER'){pg='mp';sel=0;mpMsg=''}
-else if(b==='CREATE GAME'){pg='mpm';sel=0;mpMsg=''}
-else if(b.startsWith('SKIN:')){mySkin=(mySkin+1)%4;try{localStorage.setItem('bbskin',mySkin)}catch(_){}if(MP&&nr)nr.presence({sk:mySkin})}
-else if(b==='CO-OP ZOMBIES'){createRoom('coop')}
-else if(b==='TEAM DEATHMATCH'){createRoom('tdm')}
-else if(b==='FREE FOR ALL'){createRoom('ffa')}
-else if(b==='CAPTURE THE FLAG'){createRoom('ctf')}
-else if(b==='CASH MAYHEM'){createRoom('cash')}
-else if(b==='ZOMBIE RACE'){pg='mpt';sel=0}
-else if(b==='3 MINUTES'){mpDur=180;createRoom('race')}
-else if(b==='5 MINUTES'){mpDur=300;createRoom('race')}
-else if(b==='10 MINUTES'){mpDur=600;createRoom('race')}
+else if(b==='CREATE LOBBY'){mpCode=newCode();startMP('host')}
 else if(b==='JOIN WITH CODE'){askText('Room code','',4,v=>joinRoom(v))}
 else if(b==='MISSION 2: ESCAPE'){startEscape();lock()}
 else if(b==='SOLO ZOMBIES'){startZombies();lock()}
 else if(b==='HOW TO PLAY'){showHow=true;sel=0}
-else if(b==='BACK'){showHow=false;pg=pg==='mpm'?'mp':pg==='mpt'?'mpm':'main';sel=0}
+else if(b==='BACK'){showHow=false;pg='main';sel=0}
 else if(b==='RESUME'){state='play';lock()}
 else if(b==='RESTART LEVEL'){retry();lock()}
 else if(b==='MAIN MENU'){if(MP)leaveMP();state='menu';showHow=false;pg='main';sel=0;try{document.exitPointerLock()}catch(_){}}}
@@ -132,21 +122,21 @@ function drawMenu(){g.fillStyle='#000d';g.fillRect(0,0,W,H);g.textAlign='center'
 g.fillStyle='#e8e6df';g.font='bold 30px monospace';g.fillText(pm?'PAUSED':'BUNKER BREAKOUT',W/2,64);
 g.font='13px monospace';
 if(!pm&&showHow){g.fillStyle='#c9c6bc';['WASD - move','Mouse or Left/Right arrows - turn','Click or F - shoot','Space jump - Shift sprint','R reload - Q switch - E buy ammo - G gun','M tac map - Esc or P pause','Health regenerates after 4s unhurt','Clear 3 bunkers and defeat Hittler'].forEach((t,i)=>g.fillText(t,W/2,100+i*18))}
-else{g.fillStyle=(pg==='mp'&&mpMsg)?'#ffd34d':'#9a9788';g.fillText(pm?(mode==='escape'?'Mission 2: Escape':mode==='zombies'?'Wave '+wave:'Mission 1 · Level '+(level+1)+' of 3'):((pg==='mp'||pg==='mpm'||pg==='mpt')?(mpMsg||(pg==='mpt'?'How long should the match be?':'Peer-to-peer · share the room code')):pg==='camp'?'Choose a mission':'Campaign, multiplayer, or solo Nazi Zombies'),W/2,88)}
+else{g.fillStyle=(pg==='mp'&&mpMsg)?'#ffd34d':'#9a9788';g.fillText(pm?(mode==='escape'?'Mission 2: Escape':mode==='zombies'?'Wave '+wave:'Mission 1 · Level '+(level+1)+' of 3'):(pg==='mp'?(mpMsg||'Peer-to-peer · create a lobby or join with a code'):pg==='camp'?'Choose a mission':'Campaign, multiplayer, or solo Nazi Zombies'),W/2,88)}
 const L=btns(),bw=200,n6=L.length>5,bh=n6?24:30,gap=n6?4:10,y0=(showHow&&!pm)?H-60:(n6?92:L.length>4?100:130);btnR=[];
-L.forEach((t,i)=>{const x=W/2-bw/2,y=y0+i*(bh+gap);btnR.push([x,y,bw,bh]);g.fillStyle=i===sel?'#8a2323':'#2b2e35';g.fillRect(x,y,bw,bh);g.strokeStyle=i===sel?'#e8e6df':'#555';g.strokeRect(x,y,bw,bh);g.fillStyle='#e8e6df';g.font='bold 14px monospace';g.fillText(t,W/2,y+bh/2+5)});if(pg==='mp'&&!pm)skinPrev()}
-function askText(label,val,max,cb){tx={label,val,max,cb};state='text'}
+L.forEach((t,i)=>{const x=W/2-bw/2,y=y0+i*(bh+gap);btnR.push([x,y,bw,bh]);g.fillStyle=i===sel?'#8a2323':'#2b2e35';g.fillRect(x,y,bw,bh);g.strokeStyle=i===sel?'#e8e6df':'#555';g.strokeRect(x,y,bw,bh);g.fillStyle='#e8e6df';g.font='bold 14px monospace';g.fillText(t,W/2,y+bh/2+5)})}
+function askText(label,val,max,cb){tx={label,val,max,cb};txBack=state;state='text'}
 function textKey(e){if(e.preventDefault)e.preventDefault();
-if(e.code==='Escape'){state='menu';tx=null;return}
-if(e.code==='Enter'){const v=tx.val.trim(),cb=tx.cb;tx=null;state='menu';if(v)cb(v);return}
+if(e.code==='Escape'){state=txBack||'menu';tx=null;return}
+if(e.code==='Enter'){const v=tx.val.trim(),cb=tx.cb;tx=null;state=txBack||'menu';if(v)cb(v);return}
 if(e.code==='Backspace'){tx.val=tx.val.slice(0,-1);return}
 if(e.key&&e.key.length===1&&tx.val.length<tx.max)tx.val+=tx.max<=8?e.key.toUpperCase():e.key}
 function drawText(){g.fillStyle='#000e';g.fillRect(0,0,W,H);g.textAlign='center';g.fillStyle='#e8e6df';g.font='bold 18px monospace';g.fillText(tx.label,W/2,100);
 g.fillStyle='#2b2e35';g.fillRect(40,120,W-80,34);g.strokeStyle='#888';g.strokeRect(40,120,W-80,34);g.fillStyle='#ffd34d';g.font='bold 16px monospace';
 const t=tx.val.trim(),sh=t.length>44?'...'+t.slice(-41):t;g.fillText(sh+((Date.now()>>8)&1?'_':''),W/2,143);
 g.fillStyle='#9a9788';g.font='12px monospace';g.fillText('Type, then press Enter  ·  Esc to cancel',W/2,185)}
-function createRoom(m){const a='ABDEGHJKLMNPQRSUVWXYZ';mpCode={coop:'C',tdm:'T',ffa:'F',ctf:'L',race:'Z',cash:'M'}[m]+Array.from({length:3},()=>a[Math.floor(Math.random()*a.length)]).join('');if(m==='ctf'||m==='cash')mpDur=600;startMP(m,'host')}
-function joinRoom(v){const c=v.toUpperCase().replace(/[^A-Z]/g,'').slice(0,4),m={C:'coop',T:'tdm',F:'ffa',L:'ctf',Z:'race',M:'cash'}[c[0]];if(c.length<4||!m){mpMsg='Invalid code (4 letters starting with C, T, F, L, Z or M)';return}mpCode=c;startMP(m,'join')}
+function newCode(){const a='ABDEGHJKLMNPQRSUVWXYZ';return Array.from({length:4},()=>a[Math.floor(Math.random()*a.length)]).join('')}
+function joinRoom(v){const c=v.toUpperCase().replace(/[^A-Z]/g,'').slice(0,4);if(c.length<4){mpMsg='Room codes are 4 letters';return}mpCode=c;startMP('join')}
 function p2pConnect(role){return new Promise((res,rej)=>{
 if(typeof Peer==='undefined')return rej('Peer-to-peer library not loaded (needs internet)');
 const hd={},pph=[],clients=new Map();let local={},dirty=false,done=false,raw=[],myId=null,peer=null,conn=null,hostId=null,timer=null,tick=null;
@@ -223,7 +213,7 @@ function cashTick(dt){cashT-=dt;if(cashT<=0&&CA.length<14){cashT=1.5+Math.random
 function mpTick(dt){
 if(isHost&&(state==='play'||state==='pause')){if(mpTimed)mpTime=Math.max(0,mpTime-dt);if(mpm==='ctf')ctfTick(dt);if(mpm==='cash')cashTick(dt)}
 mpT-=dt;if(mpT<=0){mpT=.05;const p={x:+P.x.toFixed(2),y:+P.y.toFixed(2),a:+P.a.toFixed(2),hp:Math.max(0,Math.ceil(P.hp)),t:myTeam,k:myK,d:myD,sc:earned,sk:mySkin,al:P.dead?0:1,nm:myName,mp:1,g:mpm};
-if(isHost){if(mpm==='coop'||mpm==='race'){p.wv=wave;p.z=E.filter(e=>e.hp>0).slice(0,40).map(e=>[e.id,Math.round(e.x*20),Math.round(e.y*20),e.hp,e.mhp||e.hp,e.boss?1:0])}
+if(isHost){p.go=1;p.gm=mpm;p.du=mpDurCur;p.gid=matchId;if(mpm==='coop'||mpm==='race'){p.wv=wave;p.z=E.filter(e=>e.hp>0).slice(0,40).map(e=>[e.id,Math.round(e.x*20),Math.round(e.y*20),e.hp,e.mhp||e.hp,e.boss?1:0])}
 if(mpTimed)p.tl=Math.ceil(mpTime);
 if(mpm==='ctf'){p.fl=FLG.map(f=>[Math.round(f.x*20),Math.round(f.y*20),f.c||0]);p.cap=CAP}
 if(mpm==='cash'){p.ca=CA.slice(0,16).map(c=>[c.id,Math.round(c.x*20),Math.round(c.y*20),c.v]);p.cm=CM}}
@@ -234,27 +224,66 @@ else{if(P.dead&&(respT-=dt)<=0)mpRespawn();mpCheck()}
 if(mpTimed&&mpTime<=0)mpFinish()}
 function leaveMP(){for(const u of hs)try{u()}catch(_){}hs=[];if(nr){try{nr.presence({mp:null,al:null,z:null,g:null})}catch(_){}try{nr.leave()}catch(_){}}nr=null;MP=0;RP=[];E=[];mode='bunker';state='menu';pg='main';showHow=false;sel=0;oz=false;try{document.exitPointerLock()}catch(_){}}
 function kreward(by,pts,am){nr.emit('zk',{to:by,pts:pts});if(am)nr.emit('zk',{to:'all',ammo:am,g:mpm})}
-async function startMP(m,how){
-mpMsg='Connecting...';
-try{nr=await p2pConnect(how)}catch(e){mpMsg=String(e);state='menu';return}
-mpm=m;MP=1;mpEnd='';myK=0;myD=0;myTeam=0;isHost=true;RP=[];mode=(m==='coop'||m==='race')?'zombies':'mp';mpTimed=['ctf','race','cash'].includes(m);mpTime=how==='host'?mpDur:9999;earned=0;CM={};CA=[];cpSent={};cashT=2;CAP=[0,0];FLG=[{x:2.5,y:8.5,hx:2.5,hy:8.5,c:null,ret:0},{x:13.5,y:8.5,hx:13.5,hy:8.5,c:null,ret:0}];oz=false;level=3;P=null;load();
-pts=500;wave=0;zq=0;zt=0;wt=2;wm=0;bp=false;if(m==='coop'||m==='race')P.res=60;
-myName=(me()||'plr').slice(0,3).toUpperCase();mpSpawn();
+const MODES=[['coop','CO-OP ZOMBIES','Fight zombie waves together'],['tdm','TEAM DEATHMATCH','First team to 25 kills'],['ffa','FREE FOR ALL','First to 15 kills'],['ctf','CAPTURE THE FLAG','First team to 3 captures'],['race','ZOMBIE RACE','Most points before time is up'],['cash','CASH MAYHEM','Most cash before time is up']];
+const TIMED=['ctf','race','cash'],DURS=[180,300,600];
+async function startMP(how){mpMsg='Connecting...';try{nr=await p2pConnect(how)}catch(e){mpMsg=String(e);state='menu';return}
+mpm='';MP=1;mpEnd='';isHost=how==='host';RP=[];mode='mp';mpTime=9999;lobMode=1;lobDur=300;myK=0;myD=0;earned=0;matchId=0;lastGid=0;
 hs.push(nr.on('hit',ev=>{const d=ev.data||{};if(d.to===me()&&typeof d.dmg==='number'&&state!=='dead')hurtMe(Math.min(30,d.dmg),d.by)}));
 hs.push(nr.on('kl',ev=>{const d=ev.data||{};if(d.to===me())myK++}));
 hs.push(nr.on('zh',ev=>{if(!isHost)return;const d=ev.data||{},z=E.find(q=>q.id===d.id&&q.hp>0);if(!z)return;z.hp--;z.f=.1;if(z.hp<=0)kreward(d.by,z.boss?500:60,z.boss?30:0);else kreward(d.by,10,0)}));
 hs.push(nr.on('zk',ev=>{const d=ev.data||{};if((d.to===me()||d.to==='all')&&(!d.g||d.g===mpm)){if(typeof d.pts==='number'){pts+=Math.min(500,d.pts);earned+=Math.min(500,d.pts)}if(typeof d.ammo==='number')P.res=Math.min(99,P.res+Math.min(30,d.ammo))}}));
 hs.push(nr.on('cp',ev=>{if(!isHost||mpm!=='cash')return;const id=(ev.data||{}).id,i=CA.findIndex(c=>c.id===id),who=ev.peer,pp=allP().find(p=>p.peer===who);if(i<0||!pp||!pp.al||Math.hypot(pp.x-CA[i].x,pp.y-CA[i].y)>1.6)return;CM[who]=(CM[who]||0)+CA[i].v;CA.splice(i,1)}));
 hs.push(nr.on('cd',ev=>{if(!isHost||mpm!=='cash')return;const v=CM[ev.peer]||0,d=Math.floor(v*.3),x=+(ev.data||{}).x,y=+(ev.data||{}).y;if(d<=0||!isFinite(x)||!isFinite(y))return;CM[ev.peer]=v-d;const a=Math.ceil(d/2);CA.push({id:++cid,x,y,v:a},{id:++cid,x:x+.3,y:y+.3,v:d-a})}));
-hs.push(nr.onPeers(ch=>{const ps=ch.peers.filter(p=>p.presence&&p.presence.mp&&p.presence.g===mpm),ids=ps.map(p=>p.peer).sort(),mid=me();const hid=ids.find(x=>x[0]==='H')||ids[0];isHost=!ids.length||hid===mid;
-RP=ps.filter(p=>p.peer!==mid&&typeof p.presence.x==='number').map((p,i)=>{const q=p.presence;return{peer:p.peer,x:q.x,y:q.y,a:q.a,hp:q.al?Math.max(1,q.hp||1):0,mhp:100,al:q.al,team:q.t,k:q.k||0,d:q.d||0,sc:q.sc||0,nm:String(q.nm||'P').slice(0,4),rp:1,f:0,col:(mpm==='tdm'||mpm==='ctf')?(q.t?'#b03030':'#2f5fa8'):SKINS[(q.sk||0)%4].c,sk:(q.sk||0)%4,tc:(mpm==='tdm'||mpm==='ctf')?(q.t?'#e0453f':'#4d8ae0'):null}});
+hs.push(nr.onPeers(ch=>{const ps=ch.peers.filter(p=>p.presence&&p.presence.mp),ids=ps.map(p=>p.peer).sort(),mid=me();const hid=ids.find(x=>x[0]==='H')||ids[0];isHost=!ids.length||hid===mid;
+RP=ps.filter(p=>p.peer!==mid&&typeof p.presence.x==='number').map((p,i)=>{const q=p.presence;return{peer:p.peer,x:q.x,y:q.y,a:q.a,hp:q.al?Math.max(1,q.hp||1):0,mhp:100,al:q.al,team:q.t,k:q.k||0,d:q.d||0,sc:q.sc||0,nm:String(q.nm||'P').slice(0,10),rp:1,f:0,col:(mpm==='tdm'||mpm==='ctf')?(q.t?'#b03030':'#2f5fa8'):SKINS[(q.sk||0)%4].c,sk:(q.sk||0)%4,tc:(mpm==='tdm'||mpm==='ctf')?(q.t?'#e0453f':'#4d8ae0'):null}});
 const hp=(ps.find(p=>p.peer===hid)||{}).presence;
-if(!isHost&&hp){if(mpm==='coop'||mpm==='race'){E=(hp.z||[]).map(a=>({id:a[0],x:a[1]/20,y:a[2]/20,hp:a[3],mhp:a[4],boss:!!a[5],name:a[5]?'ZOMBIE HITTLER':undefined,z:true,f:0}));const w=hp.wv;if(typeof w==='number'&&w!==wave){wave=w;wm=2.5;if(P.dead&&mpm==='coop')mpRespawn()}}
+if(!isHost&&hp&&state==='lobby'){if(typeof hp.gm==='string'){const k=MODES.findIndex(x=>x[0]===hp.gm);if(k>=0)lobMode=k}if(typeof hp.du==='number')lobDur=hp.du;if(hp.go===1&&hp.gm&&hp.gid!==lastGid){lastGid=hp.gid;beginMatch(hp.gm,hp.du,false)}}
+if(!isHost&&hp&&state!=='lobby'&&mpm){if(mpm==='coop'||mpm==='race'){E=(hp.z||[]).map(a=>({id:a[0],x:a[1]/20,y:a[2]/20,hp:a[3],mhp:a[4],boss:!!a[5],name:a[5]?'ZOMBIE HITTLER':undefined,z:true,f:0}));const w=hp.wv;if(typeof w==='number'&&w!==wave){wave=w;wm=2.5;if(P.dead&&mpm==='coop')mpRespawn()}}
 if(typeof hp.tl==='number')mpTime=hp.tl;
 if(mpm==='ctf'){FLG=(hp.fl||[]).map(a=>({x:a[0]/20,y:a[1]/20,c:a[2]||null}));CAP=hp.cap||[0,0]}
 if(mpm==='cash'){CA=(hp.ca||[]).map(a=>({id:a[0],x:a[1]/20,y:a[2]/20,v:a[3]}));CM=hp.cm||{}}}}));
-setTimeout(()=>{if(!MP||!nr)return;const ids=nr.peers().filter(p=>p.presence&&p.presence.mp&&p.presence.g===mpm).map(p=>p.peer).sort();myTeam=Math.max(0,ids.indexOf(me()))%2;mpSpawn()},1600);
+state='lobby';mpT=0;lobbyTick(0)}
+function beginMatch(m,dur,asHost){mpm=m;MP=1;mpEnd='';myK=0;myD=0;myTeam=0;mode=(m==='coop'||m==='race')?'zombies':'mp';mpTimed=TIMED.includes(m);mpDurCur=dur;mpTime=asHost?dur:9999;earned=0;CM={};CA=[];cpSent={};cashT=2;CAP=[0,0];FLG=[{x:2.5,y:8.5,hx:2.5,hy:8.5,c:null,ret:0},{x:13.5,y:8.5,hx:13.5,hy:8.5,c:null,ret:0}];oz=false;level=3;P=null;load();
+pts=500;wave=0;zq=0;zt=0;wt=2;wm=0;bp=false;if(m==='coop'||m==='race')P.res=60;
+myName=myNick;mpSpawn();
+setTimeout(()=>{if(!MP||!nr||state==='lobby')return;const ids=nr.peers().filter(p=>p.presence&&p.presence.mp).map(p=>p.peer).sort();myTeam=Math.max(0,ids.indexOf(me()))%2;mpSpawn()},1600);
 lock()}
+function lobPlayers(){const l=[{peer:me(),nm:myNick,sk:mySkin,me:1,host:isHost}].concat(RP.map(p=>({peer:p.peer,nm:p.nm,sk:p.sk,host:String(p.peer)[0]==='H'})));return l.sort((a,b)=>(b.host?1:0)-(a.host?1:0)).slice(0,8)}
+function lobbyTick(dt){mpT-=dt;if(mpT>0||!nr)return;mpT=.15;const p={x:0,y:0,a:0,hp:100,al:1,t:0,k:0,d:0,sc:0,nm:myNick,sk:mySkin,mp:1};
+if(isHost){p.gm=MODES[lobMode][0];p.du=lobDur;p.go=0;p.gid=matchId;p.z=null;p.fl=null;p.cap=null;p.ca=null;p.cm=null;p.wv=null;p.tl=null}
+nr.presence(p).catch(()=>{})}
+function lobStart(){if(!isHost)return;matchId++;lastGid=matchId;beginMatch(MODES[lobMode][0],lobDur,true)}
+function backToLobby(){if(!nr){leaveMP();return}mode='mp';mpm='';state='lobby';E=[];AM=[];mpEnd='';mpT=0;try{document.exitPointerLock()}catch(_){}}
+function saveSkin(){try{localStorage.setItem('bbskin',mySkin)}catch(_){}}
+function lobClick(ev){const q=toXY(ev),b=lobR.find(r=>q[0]>=r.x&&q[0]<=r.x+r.w&&q[1]>=r.y&&q[1]<=r.y+r.h);if(!b)return;
+switch(b.id){case'modeL':lobMode=(lobMode+MODES.length-1)%MODES.length;break;case'modeR':lobMode=(lobMode+1)%MODES.length;break;
+case'durL':lobDur=DURS[(DURS.indexOf(lobDur)+2)%3];break;case'durR':lobDur=DURS[(DURS.indexOf(lobDur)+1)%3];break;
+case'skinL':mySkin=(mySkin+3)%4;saveSkin();break;case'skinR':mySkin=(mySkin+1)%4;saveSkin();break;
+case'name':askText('Type your name (10 letters max)','',10,v=>{myNick=v.slice(0,10);try{localStorage.setItem('bbname',myNick)}catch(_){}});break;
+case'start':lobStart();break;case'leave':leaveMP();break}mpT=0}
+function lobKey(e){if(e.preventDefault)e.preventDefault();if(e.code==='Escape')leaveMP();else if(e.code==='ArrowLeft'){mySkin=(mySkin+3)%4;saveSkin();mpT=0}else if(e.code==='ArrowRight'){mySkin=(mySkin+1)%4;saveSkin();mpT=0}else if(e.code==='Enter'&&isHost)lobStart()}
+function drawLobby(){const gr=g.createLinearGradient(0,0,W,H);gr.addColorStop(0,'#2a1a66');gr.addColorStop(1,'#0c7bd4');g.fillStyle=gr;g.fillRect(0,0,W,H);
+g.fillStyle='rgba(255,255,255,.05)';for(let i=0;i<5;i++){g.beginPath();g.moveTo(i*110-40,H);g.lineTo(i*110+30,0);g.lineTo(i*110+70,0);g.lineTo(i*110,H);g.fill()}
+g.fillStyle='rgba(0,0,0,.4)';g.fillRect(0,0,W,30);g.textAlign='left';g.fillStyle='#fff';g.font='bold 16px monospace';g.fillText('LOBBY',10,20);g.textAlign='right';g.fillStyle='#ffd34d';g.fillText('ROOM '+mpCode,W-10,20);
+g.textAlign='center';g.fillStyle='#cfe3ff';g.font='11px monospace';g.fillText('Share the room code - friends choose Join With Code',W/2,46);
+const pl=lobPlayers(),sw=W/8;
+for(let i=0;i<8;i++){const cx=i*sw+sw/2,p=pl[i];g.fillStyle='rgba(0,0,0,.35)';g.beginPath();g.ellipse(cx,172,24,6,0,0,7);g.fill();
+if(!p){g.fillStyle='rgba(255,255,255,.18)';g.font='bold 22px monospace';g.textAlign='center';g.fillText('+',cx,134);continue}
+const w=32,h=74,x0=cx-w/2,top=94;for(const [a,b,v0,v1,cl] of pp(p.sk,null)){g.fillStyle=cl;g.fillRect(x0+a*w,top+v0*h,(b-a)*w,(v1-v0)*h)}
+if(p.host){g.fillStyle='#ffd34d';g.font='bold 14px monospace';g.textAlign='center';g.fillText('\u2605',cx,86)}
+g.fillStyle=p.me?'rgba(255,211,77,.9)':'rgba(0,0,0,.55)';g.fillRect(cx-27,178,54,14);g.fillStyle=p.me?'#000':'#fff';g.font='bold 10px monospace';g.textAlign='center';g.fillText(String(p.nm).slice(0,9),cx,188)}
+lobR=[];const btn=(id,x,y,w,h,t,on,pri)=>{g.fillStyle=on?(pri?'#ffd34d':'rgba(255,255,255,.3)'):'rgba(255,255,255,.1)';g.fillRect(x,y,w,h);g.fillStyle=on?(pri?'#000':'#fff'):'rgba(255,255,255,.35)';g.font='bold 12px monospace';g.textAlign='center';g.fillText(t,x+w/2,y+h/2+4);if(on)lobR.push({id,x,y,w,h})};
+g.fillStyle='rgba(0,0,0,.4)';g.fillRect(8,198,230,64);g.fillRect(244,198,228,64);
+const m=MODES[lobMode],timed=TIMED.includes(m[0]);
+g.textAlign='left';g.fillStyle='#9fb9e0';g.font='9px monospace';g.fillText('GAME MODE'+(isHost?'':' (host chooses)'),16,210);g.fillStyle='#fff';g.font='bold 13px monospace';g.fillText(m[1],16,226);g.fillStyle='#cfe3ff';g.font='10px monospace';g.fillText(m[2],16,240);
+btn('modeL',172,208,24,20,'<',isHost);btn('modeR',202,208,24,20,'>',isHost);
+if(timed){g.textAlign='left';g.fillStyle='#fff';g.font='bold 12px monospace';g.fillText('TIME  '+lobDur/60+' MIN',16,256);btn('durL',172,242,24,16,'<',isHost);btn('durR',202,242,24,16,'>',isHost)}
+g.textAlign='left';g.fillStyle='#9fb9e0';g.font='9px monospace';g.fillText('SKIN',252,210);g.fillStyle='#fff';g.font='bold 13px monospace';g.fillText(SKINS[mySkin].n+' SOLDIER',252,226);
+btn('skinL',410,208,24,20,'<',true);btn('skinR',440,208,24,20,'>',true);
+g.fillStyle='#9fb9e0';g.font='9px monospace';g.textAlign='left';g.fillText('NAME',252,242);g.fillStyle='#fff';g.font='bold 13px monospace';g.fillText(myNick,252,256);btn('name',410,238,54,20,'EDIT',true);
+btn('leave',8,268,80,26,'LEAVE',true);
+if(isHost)btn('start',150,268,180,26,'START MATCH',true,true);else{g.fillStyle='rgba(255,255,255,.18)';g.fillRect(150,268,180,26);g.fillStyle='#cfe3ff';g.textAlign='center';g.font='bold 12px monospace';g.fillText('WAITING FOR HOST...',240,285)}
+g.fillStyle='#cfe3ff';g.font='10px monospace';g.textAlign='right';g.fillText(pl.length+' / 8 players',W-10,284)}
 const RS=[[1.5,1.5],[14.5,14.5],[14.5,8.5],[1.5,8.5]];
 function startEscape(){mode='escape';MP=0;oz=false;level=4;P=null;load();P.res=48;KC=[{x:7.5,y:8.5},{x:3.5,y:1.5}];kc=0;et=150;rf=20}
 function startOutside(){oz=true;level=5;KC=[];load();P.a=2.4}
@@ -266,7 +295,7 @@ for(let i=KC.length-1;i>=0;i--)if(Math.hypot(KC[i].x-P.x,KC[i].y-P.y)<0.7){KC.sp
 if(kc>=2&&P.x>14.3&&Math.floor(P.y)===1)startOutside()}
 function winNext(){if(mode==='escape'){state='menu';showHow=false;sel=0;try{document.exitPointerLock()}catch(_){}}else{startEscape();lock()}}
 function nextLevel(){level++;load()}
-function retry(){if(MP){leaveMP();return}if(mode==='zombies')startZombies();else if(mode==='escape'){if(oz)startOutside();else startEscape()}else load()}
+function retry(){if(MP){backToLobby();return}if(mode==='zombies')startZombies();else if(mode==='escape'){if(oz)startOutside();else startEscape()}else load()}
 const ZS=[[1.5,1.5],[14.5,1.5],[1.5,14.5],[14.5,14.5],[7.5,1.5],[7.5,14.5],[1.5,8.5],[14.5,8.5]];
 function startZombies(){mode='zombies';MP=0;oz=false;level=3;P=null;load();P.res=60;pts=500;wave=0;zq=0;zt=0;wt=2;wm=0;bp=false}
 function spawnZ(){const far=ZS.filter(q=>Math.hypot(q[0]-P.x,q[1]-P.y)>6),q=(far.length?far:ZS)[Math.floor(Math.random()*(far.length||ZS.length))],x=(wave-1)/3,h=1+Math.floor(x)+(Math.random()<x-Math.floor(x)?1:0);
@@ -292,11 +321,11 @@ if(hit(2)&&state==='play')reload();if(hit(1))buy();
 if(hit(3))sw();if(hit(12)&&state==='play')showMap=!showMap;if(hit(13)&&state==='play')buyGun();
 if(hit(9)){if(state==='play')pause();else if(state==='pause')act(0)}
 if(state==='menu'||state==='pause'){const n=btns().length;if(hit(13))sel=(sel+1)%n;if(hit(12))sel=(sel+n-1)%n;if(hit(0))act(sel)}
-else if(hit(0)){if(state==='next')nextLevel();else if(state==='dead')retry();else if(state==='mpend')leaveMP();else if(state==='win')winNext()}
+else if(hit(0)){if(state==='next')nextLevel();else if(state==='dead')retry();else if(state==='mpend')backToLobby();else if(state==='win')winNext()}
 gpPrev.length=0;for(let i=0;i<p.buttons.length;i++)gpPrev[i]=b(i)}
 let last=performance.now();
-function loop(n){const dt=Math.min(0.05,(n-last)/1000);last=n;pollPad(dt);update(dt);render();
-if(state==='menu'||state==='pause')drawMenu();if(state==='text')drawText();
+function loop(n){const dt=Math.min(0.05,(n-last)/1000);last=n;pollPad(dt);update(dt);if(state!=='lobby')render();
+if(state==='menu'||state==='pause')drawMenu();if(state==='text')drawText();if(state==='lobby')drawLobby();
 if(state==='dead')banner(mode==='escape'&&et<=0?'TIME UP':'YOU DIED',mode==='escape'&&et<=0?'The bunker collapsed. Click to retry.':mode==='zombies'?'You reached wave '+wave+' with '+pts+' points. Click to retry.':'Click or press R to try again.');
 if(state==='next')banner('LEVEL '+(level+1)+' CLEARED','Click to continue to level '+(level+2)+'.');if(state==='mpend')banner(mpEnd||'MATCH OVER','Click to return to the menu.');if(state==='win')banner(mode==='escape'?'YOU ESCAPED':'HITTLER DEFEATED',mode==='escape'?'Courtyard cleared. Mission 2 complete. Click for the menu.':'Click for Mission 2: Escape the Bunker.');
 requestAnimationFrame(loop)}
